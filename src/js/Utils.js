@@ -7,12 +7,6 @@ export function modifySettings(OrigineScene, OrigineDocument, OrigineWindow, can
             canvas.requestPointerLock();
         } else {
             console.log("Pointer already locked");
-
-            // if (OrigineScene.activeCamera === OrigineScene.freeCameraDude) {
-            //     // let fire the gun
-            //     let heroDude = OrigineScene.getMeshByName("heroDude");
-            //     if (heroDude) heroDude.Dude.fireGun();
-            // }
         }
     };
 
@@ -53,14 +47,10 @@ export function addKeyListener(scene) {
 export function loadCrossHair(scene) {
     var crossHair = new BABYLON.Mesh.CreateBox("crossHair", .1, scene);
     crossHair.parent = scene.activeCamera;
-    //console.log("minZ is " + scene.freeCameraDude.minZ);
-    //  scene.freeCameraDude.minZ = .1;
-    //  crossHair.position.z += 0.2;
+
     crossHair.position.z += 2;
     crossHair.position.y += 0.5;
 
-    // strange....?
-    //impact.position.y -= scene.freeCameraDude.ellipsoidOffset.y;
     crossHair.material = new BABYLON.StandardMaterial("crossHair", scene);
     crossHair.material.diffuseTexture = new BABYLON.Texture("assets/archer/gunaims.png", scene);
     crossHair.material.diffuseTexture.hasAlpha = true;
@@ -88,15 +78,19 @@ export function createFollowCamera(scene, target, canvas) {
         target
     );
 
-    camera.attachControl(target, true);
+    //camera.attachControl(target, true);
     camera.checkCollisions = true;
+    camera.applyGravity = true;
 
     // default values
     camera.radius = 40; // how far from the object to follow
     camera.heightOffset = 14; // how high above the object to place the camera
     camera.rotationOffset = 0; // the viewing angle
-    camera.cameraAcceleration = 0.1; // how fast to move
-    camera.maxCameraSpeed = 5; // speed limit
+    camera.cameraAcceleration = 0.01; // how fast to move
+    camera.maxCameraSpeed = 1; // speed limit
+
+    camera.lowerRadiusLimit = 10;
+    camera.upperRadiusLimit = 35;
 
     // specific values
     switch (target.name) {
@@ -118,7 +112,7 @@ export function createArcCamera(scene, target, canvas) {
     camera1.wheelDeltaPercentage = 0.01;
     camera1.checkCollisions = true;
 
-    camera1.setPosition(new BABYLON.Vector3(0, 19, 20));
+    camera1.setPosition(new BABYLON.Vector3(0, 21, 20));
 
     return camera1;
 }

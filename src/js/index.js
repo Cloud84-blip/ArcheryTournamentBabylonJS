@@ -110,12 +110,13 @@ function createArcher(scene) {
         let archer = new Archer(task.loadedMeshes[0], 1, 0.1, 3, scene, task.loadedSkeletons);
         scene.Archer = archer;
 
-        // camera = createFollowCamera(scene, archer.bounder, canvas);
-        camera = createArcCamera(scene, archer.bounder, canvas);
+        camera = createFollowCamera(scene, archer.bounder, canvas);
+        //camera = createArcCamera(scene, archer.bounder, canvas);
         scene.activeCamera = camera;
 
         // load the crosshair
         loadCrossHair(scene);
+
     }
 }
 

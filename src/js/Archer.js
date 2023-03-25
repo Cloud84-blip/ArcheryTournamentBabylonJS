@@ -80,9 +80,11 @@ export class Archer {
     }
 
     move() {
+        let scene = this.scene;
+
         // handle keyboard input and move the archer
         // src https://playground.babylonjs.com/#AHQEIB#17
-        let scene = this.scene;
+
         var keydown = false;
         if (scene.inputMap["z"] || scene.inputMap["ArrowUp"]) {
             if (scene.inputMap["s"] === undefined || !scene.inputMap["s"]) {
@@ -117,7 +119,6 @@ export class Archer {
             if (name === "StdWalkFwd") {
                 this.setCurrentAnimation("StdRunFwd");
                 this.speed = new BABYLON.Vector3(this.constSpeed * 2, this.constSpeed * 2, this.constSpeed * 2);
-                console.log(this.speed, this.constSpeed);
             } else if (name === "StdWalkBack") {
                 this.speed = new BABYLON.Vector3(this.constSpeed * 1.3, this.constSpeed * 1.3, this.constSpeed * 1.3);
                 this.setCurrentAnimation("StdRunBack");
@@ -126,6 +127,15 @@ export class Archer {
             keydown = true;
         }
         if (scene.inputMap["shift"] === undefined || !scene.inputMap["shift"]) {
+            // if shift isn't pressed, set the speed back to normal
+            // and set the animation to walking instead of running
+            // this will allow the player to walk after running, and run again if forward is not released
+            if (this.currentAnimation.name === "StdRunFwd") {
+                this.setCurrentAnimation("StdWalkFwd");
+            }
+            if (this.currentAnimation.name === "StdRunBack") {
+                this.setCurrentAnimation("StdWalkBack");
+            }
             this.speed = new BABYLON.Vector3(this.constSpeed, this.constSpeed, this.constSpeed);
         }
 
@@ -150,10 +160,15 @@ export class Archer {
                     this.doAnimation(true);
                 }
             }
+
+            if (!scene.inputMap["shift"]) {
+                console.log("stop");
+                scene.getAnimationGroupByName("StdRunFwd").stop();
+                scene.getAnimationGroupByName("StdRunBack").stop();
+            }
+
         } else {
             if (this.animating) {
-                console.log(scene.inputMap)
-
                 this.animating = false;
 
                 scene.animationGroups.forEach((anim) => {
@@ -165,7 +180,6 @@ export class Archer {
             }
         }
     }
-
 
     moveInSquarre() {
         //this.doAnimation();
