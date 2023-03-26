@@ -14,6 +14,7 @@ export class Archer {
         this.bounder = this.createBox();
         this.archerMesh.setParent(this.bounder);
         this.archerMesh.Archer = this;
+
         this.animating = false;
         this.animations = {};
         scene.animationGroups.forEach((anim) => {
@@ -60,13 +61,11 @@ export class Archer {
         );
         let groundHeight = 0;
         let pickInfo = this.scene.pickWithRay(ray, (mesh) => {
-            return mesh.name === "ground";
+            return mesh.name.includes("ground") || mesh.name.includes("Bridge") || mesh.name.includes("Floor");
         });
         if (pickInfo.hit) {
             groundHeight = pickInfo.pickedPoint.y;
         }
-
-
         return groundHeight;
     }
 

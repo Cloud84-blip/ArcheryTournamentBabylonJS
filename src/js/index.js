@@ -1,4 +1,5 @@
 import { Archer } from "./Archer.js";
+import { Ground } from "./Ground.js";
 import { modifySettings, createLights, createFollowCamera, createFreeCamera, addKeyListener, createArcCamera, loadCrossHair } from "./Utils.js";
 
 let canvas;
@@ -46,7 +47,9 @@ function createScene() {
     scene.assetsManager = configureAssetManager(scene);
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.CannonJSPlugin());
 
-    createGround(scene);
+    //createGround(scene);
+
+    let ground = new Ground(scene, new BABYLON.Vector3(0, -10, 0), new BABYLON.Vector3(1, 1, 1));
 
     // create lights
     createLights(scene);
