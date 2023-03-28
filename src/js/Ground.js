@@ -18,7 +18,7 @@ export class Ground {
             "groundTask",
             "",
             "assets/ground/",
-            "SmallHouse.glb",
+            "SmallHouse2.glb",
         );
 
         let i = 0;
@@ -27,7 +27,8 @@ export class Ground {
 
             task.loadedMeshes.forEach(element => {
                 if (element.id.includes("Ground") ||
-                    element.id.includes("Stepping stone")) {
+                    element.id.includes("Stepping stone") ||
+                    element.id.includes("Bridge")) {
                     element.checkCollisions = false;
                     element.showBoundingBox = true;
                     meshesGround.push(element);
