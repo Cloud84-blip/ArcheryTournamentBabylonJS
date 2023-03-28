@@ -3,11 +3,17 @@ export class Ground {
         this.scene = scene;
         this.position = position;
         this.scaling = scaling;
+        this.groundMeshes = [];
         this.mesh = {};
         this.loadGround();
     }
 
     loadGround() {
+        let meshesGround = [];
+        let mesh = {};
+        let scene = this.scene;
+
+
         let groundTask = this.scene.assetsManager.addMeshTask(
             "groundTask",
             "",
@@ -17,21 +23,23 @@ export class Ground {
 
         let i = 0;
         groundTask.onSuccess = function(task) {
-            task.loadedMeshes[0].name = "ground";
+            //task.loadedMeshes[0].name = "ground";
+
             task.loadedMeshes.forEach(element => {
-                if (element.id.includes("Floor") || element.id.includes("Bridge") || element.id.includes("Grass") || element.id.includes("Ground")) {
+                if (element.id.includes("Ground") ||
+                    element.id.includes("Stepping stone")) {
+                    element.checkCollisions = false;
                     element.showBoundingBox = true;
+                    meshesGround.push(element);
+                } else {
+                    element.checkCollisions = true;
                 }
-                element.checkCollisions = true;
-                //element.showBoundingBox = true;
-                //element.name = element.id;
-                element.name = "ground" + i;
-                console.log(element.id);
+
             });
 
             let ground = task.loadedMeshes[0];
             // ground.position = this.position;
-            ground.scaling = new BABYLON.Vector3(2, 2, 2);
+            ground.scaling = new BABYLON.Vector3(2.5, 2.5, 2.5);
             // ground.checkCollisions = true;
             ground.showBoundingBox = true;
             ground.receiveShadows = true;
@@ -39,24 +47,30 @@ export class Ground {
             ground.physicsImpostor = new BABYLON.PhysicsImpostor(
                 ground,
                 BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 },
-                this.scene
+                scene
             );
 
-            this.mesh = ground;
-            this.mesh.actionManager = new BABYLON.ActionManager(this.scene);
-            this.mesh.Ground = this;
-            //this.handleCollision();
+            mesh = ground;
+            mesh.actionManager = new BABYLON.ActionManager(this.scene);
+            mesh.Ground = this;
         }
+
+        this.groundMeshes = meshesGround;
+        this.mesh = mesh;
+        this.handleCollision();
     }
 
     handleCollision() {
-        this.mesh.actionManager.registerAction(
-            new BABYLON.ExecuteCodeAction(
-                BABYLON.ActionManager.OnIntersectionEnterTrigger,
-                function(evt) {
-                    console.log("collision");
-                }
-            )
-        );
+        console.log(this.groundMeshes)
+        this.groundMeshes.forEach(mesh => {
+            mesh.actionManager.registerAction(
+                new BABYLON.ExecuteCodeAction(
+                    BABYLON.ActionManager.OnIntersectionEnterTrigger,
+                    function(evt) {
+                        console.log("collision");
+                    }
+                )
+            );
+        })
     }
 }

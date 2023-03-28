@@ -61,7 +61,7 @@ export class Archer {
         );
         let groundHeight = 0;
         let pickInfo = this.scene.pickWithRay(ray, (mesh) => {
-            return mesh.name.includes("ground") || mesh.name.includes("Bridge") || mesh.name.includes("Floor");
+            return mesh.id.includes("Ground") || mesh.id.includes("Bridge") || mesh.id.includes("Stepping stone");
         });
         if (pickInfo.hit) {
             groundHeight = pickInfo.pickedPoint.y;
@@ -93,7 +93,7 @@ export class Archer {
         }
         if (scene.inputMap["s"] || scene.inputMap["ArrowDown"]) {
             if (scene.inputMap["z"] === undefined || !scene.inputMap["z"]) {
-                this.bounder.moveWithCollisions(this.bounder.forward.scaleInPlace(this.speed.y / 2));
+                this.bounder.moveWithCollisions(this.bounder.forward.scaleInPlace(this.speed.y));
                 keydown = true;
             }
         }
