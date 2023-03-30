@@ -36,6 +36,11 @@ function startGame() {
             //archer.Archer.moveInSquarre();
             archer.Archer.move();
         }
+
+        if (scene.ground !== undefined) {
+            scene.ground.handleCollision();
+        }
+
         scene.render();
     };
     scene.assetsManager.load();
@@ -49,7 +54,7 @@ function createScene() {
 
     //createGround(scene);
 
-    let ground = new Ground(scene, new BABYLON.Vector3(0, -10, 0), new BABYLON.Vector3(1, 1, 1));
+    loadGround(scene);
 
     // create lights
     createLights(scene);
@@ -158,8 +163,55 @@ function createGround(scene) {
             BABYLON.PhysicsImpostor.HeightmapImpostor, { mass: 0 },
             scene
         );
-
-        console.log(ground);
     }
     return ground;
+}
+
+
+function loadGround(scene) {
+    let meshesEnvironment = [];
+    let meshesGround = [];
+    let groundTask = scene.assetsManager.addMeshTask(
+        "groundTask",
+        "",
+        "assets/ground/",
+        "SmallHouse3.glb",
+    );
+
+    let i = 0;
+    groundTask.onSuccess = function(task) {
+        //task.loadedMeshes[0].name = "ground";
+
+        task.loadedMeshes.forEach(element => {
+            element.scene = scene;
+            if (element.id.includes("Ground") ||
+                element.id.includes("Stepping stone") ||
+                element.id.includes("BridgeCollider")) {
+                element.checkCollisions = false;
+                element.showBoundingBox = true;
+                meshesGround.push(element);
+            } else {
+                if ((element.id.includes("Tree") && element.id.includes("0")) ||
+                    element.id.includes("Street") && element.id.includes("0")) {
+                    element.checkCollisions = false;
+                    element.showBoundingBox = true;
+                }
+                meshesEnvironment.push(element);
+            }
+
+        });
+
+        let ground = task.loadedMeshes[0];
+        // ground.position = this.position;
+        ground.scaling = new BABYLON.Vector3(2.5, 2.5, 2.5);
+        // ground.checkCollisions = true;
+        //ground.showBoundingBox = true;
+
+        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+            ground,
+            BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 },
+            scene
+        );
+        scene.ground = new Ground(scene, new BABYLON.Vector3(0, -10, 0), new BABYLON.Vector3(1, 1, 1), meshesEnvironment, meshesGround);
+    }
 }

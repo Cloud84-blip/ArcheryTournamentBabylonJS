@@ -161,7 +161,6 @@ export class Archer {
             }
 
             if (!scene.inputMap["shift"]) {
-                console.log("stop");
                 scene.getAnimationGroupByName("StdRunFwd").stop();
                 scene.getAnimationGroupByName("StdRunBack").stop();
             }
