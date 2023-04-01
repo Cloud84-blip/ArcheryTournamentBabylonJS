@@ -3,15 +3,22 @@ export class Archer {
         this.archerMesh = archerMesh;
         this.skeletons = skeletons;
         this.id = id;
+        this.orignalSpeed = new BABYLON.Vector3(speed / 2, speed, speed);
         this.speed = new BABYLON.Vector3(speed / 2, speed, speed);
         this.constSpeed = speed;
         this.rotationSpeed = 0.03;
-        this.backwardSpeed = 0.01;
+        this.backwardSpeed = 0.1;
         this.scene = scene;
         this.scaling = scaling;
         this.health = 2;
         this.archerMesh.scaling = new BABYLON.Vector3(scaling, scaling, scaling);
+
+
         this.bounder = this.createBox();
+        this.bounder.frontVector = new BABYLON.Vector3(0, 0, 1);
+        this.bounder.lastGoodPosition = this.bounder.position;
+
+
         this.archerMesh.setParent(this.bounder);
         this.archerMesh.Archer = this;
 
@@ -20,38 +27,36 @@ export class Archer {
         scene.animationGroups.forEach((anim) => {
             this.animations[anim.name] = anim;
         });
-        //this.arcAnimation = scene.getAnimationGroupByName("ARC");
-
-        // print all animations
-        scene.animationGroups.forEach((anim) => {
-            console.log(anim.name);
-        });
-
         this.setCurrentAnimation("IDLE");
         this.doAnimation(true);
 
     }
 
     createBox() {
+
+        this.archerMesh.position.y += 10;
+
         // create a box that will be used to bound the archer
         let box = BABYLON.MeshBuilder.CreateBox("box", { width: 0.8, height: 1, depth: 0.8 }, this.scene);
         let mat = new BABYLON.StandardMaterial("mat", this.scene);
-        mat.alpha = 0.02;
+        mat.alpha = 0.00;
         box.material = mat;
 
         let pos = this.archerMesh.position;
         box.position = new BABYLON.Vector3(pos.x, pos.y + this.scaling, pos.z);
 
         let scal = this.archerMesh.scaling;
-        box.scaling = new BABYLON.Vector3(scal.x, scal.y * 2, scal.z);
-        box.showBoundingBox = true;
-        box.checkCollisions = true;
 
+        box.scaling = new BABYLON.Vector3(scal.x, scal.y * 2, scal.z);
+        //box.showBoundingBox = true;
+        box.checkCollisions = true;
 
         return box;
     }
 
     getGroundHeight() {
+        this.bounder.lastGoodPosition = this.bounder.position.clone();
+
         // create a ray that starts above the box, and goes down vertically
         // to find the ground height
         let ray = new BABYLON.Ray(
@@ -61,7 +66,11 @@ export class Archer {
         );
         let groundHeight = 0;
         let pickInfo = this.scene.pickWithRay(ray, (mesh) => {
-            return mesh.id.includes("Ground") || mesh.id.includes("Bridge") || mesh.id.includes("Stepping stone");
+            return mesh.id.includes("GroundColloder_primitive1") ||
+                mesh.id.includes("Bridge") ||
+                mesh.id.includes("Stepping stone") ||
+                mesh.id.includes("StairsCollider") ||
+                mesh.id.includes("FloorCollider");
         });
         if (pickInfo.hit) {
             groundHeight = pickInfo.pickedPoint.y;
@@ -87,25 +96,39 @@ export class Archer {
         var keydown = false;
         if (scene.inputMap["z"] || scene.inputMap["ArrowUp"]) {
             if (scene.inputMap["s"] === undefined || !scene.inputMap["s"]) {
-                this.bounder.moveWithCollisions(this.bounder.forward.scaleInPlace(-this.speed.y));
+                this.bounder.moveWithCollisions(
+                    this.bounder.frontVector.multiplyByFloats(-this.speed.x, -this.speed.y, -this.speed.z)
+                );
+
                 keydown = true;
             }
         }
         if (scene.inputMap["s"] || scene.inputMap["ArrowDown"]) {
             if (scene.inputMap["z"] === undefined || !scene.inputMap["z"]) {
-                this.bounder.moveWithCollisions(this.bounder.forward.scaleInPlace(this.speed.y));
+                this.bounder.moveWithCollisions(
+                    this.bounder.frontVector.multiplyByFloats(this.backwardSpeed, this.backwardSpeed, this.backwardSpeed)
+                );
                 keydown = true;
             }
         }
         if (scene.inputMap["q"] || scene.inputMap["ArrowLeft"]) {
-            this.bounder.rotate(BABYLON.Vector3.Up(), -this.rotationSpeed);
-            // run left
-            // this.bounder.moveWithCollisions(this.bounder.right.scaleInPlace(this.speed.x));
+            // rotate the box on its y axis
+            this.bounder.rotation.y -= 0.05;
+            this.bounder.frontVector = new BABYLON.Vector3(
+                Math.sin(this.bounder.rotation.y),
+                0,
+                Math.cos(this.bounder.rotation.y)
+            );
             keydown = true;
         }
         if (scene.inputMap["d"] || scene.inputMap["ArrowRight"]) {
-            this.bounder.rotate(BABYLON.Vector3.Up(), this.rotationSpeed);
-            // this.bounder.moveWithCollisions(this.bounder.right.scaleInPlace(-this.speed.x));
+            //this.bounder.rotate(BABYLON.Vector3.Up(), this.rotationSpeed);
+            this.bounder.rotation.y += 0.05;
+            this.bounder.frontVector = new BABYLON.Vector3(
+                Math.sin(this.bounder.rotation.y),
+                0,
+                Math.cos(this.bounder.rotation.y)
+            );
             keydown = true;
         }
         if (scene.inputMap[" "]) {

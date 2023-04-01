@@ -1,6 +1,11 @@
 import { Archer } from "./Archer.js";
 import { Ground } from "./Ground.js";
+import { Wall } from "./Wall.js";
+import { Tree } from "./Tree.js";
 import { modifySettings, createLights, createFollowCamera, createFreeCamera, addKeyListener, createArcCamera, loadCrossHair } from "./Utils.js";
+
+
+//sebavan, pour le forum
 
 let canvas;
 let engine;
@@ -37,9 +42,9 @@ function startGame() {
             archer.Archer.move();
         }
 
-        if (scene.ground !== undefined) {
-            scene.ground.handleCollision();
-        }
+        // if (scene.ground !== undefined) {
+        //     scene.ground.handleCollision();
+        // }
 
         scene.render();
     };
@@ -50,7 +55,8 @@ function createScene() {
     let scene = new BABYLON.Scene(engine);
 
     scene.assetsManager = configureAssetManager(scene);
-    scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.CannonJSPlugin());
+    //scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.CannonJSPlugin());
+    scene.CollisionsEnabled = true;
 
     //createGround(scene);
 
@@ -115,7 +121,8 @@ function createArcher(scene) {
 
     archerTask.onSuccess = function(task) {
         task.loadedMeshes[0].name = "archer";
-        let archer = new Archer(task.loadedMeshes[0], 1, 0.1, 3, scene, task.loadedSkeletons);
+        task.loadedMeshes[0].position.y += 1;
+        let archer = new Archer(task.loadedMeshes[0], 1, 0.15, 3, scene, task.loadedSkeletons);
         scene.Archer = archer;
 
         camera = createFollowCamera(scene, archer.bounder, canvas);
@@ -128,46 +135,6 @@ function createArcher(scene) {
     }
 }
 
-
-function createGround(scene) {
-    const groundOptions = {
-        width: 2000,
-        height: 2000,
-        subdivisions: 100,
-        minHeight: 0,
-        maxHeight: 100,
-        onReady: onGroundCreated,
-    };
-    //scene is optional and defaults to the current scene
-    const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
-        "ground",
-        "assets/ground/hmap2.jpg",
-        groundOptions,
-        scene
-    );
-
-    function onGroundCreated() {
-        const groundMaterial = new BABYLON.StandardMaterial(
-            "groundMaterial",
-            scene
-        );
-        groundMaterial.diffuseTexture = new BABYLON.Texture("assets/ground/ground2.jpg");
-        ground.material = groundMaterial;
-        // to be taken into account by collision detection
-        ground.checkCollisions = true;
-        //groundMaterial.wireframe=true;
-
-        // for physic engine
-        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
-            ground,
-            BABYLON.PhysicsImpostor.HeightmapImpostor, { mass: 0 },
-            scene
-        );
-    }
-    return ground;
-}
-
-
 function loadGround(scene) {
     let meshesEnvironment = [];
     let meshesGround = [];
@@ -175,43 +142,40 @@ function loadGround(scene) {
         "groundTask",
         "",
         "assets/ground/",
-        "SmallHouse3.glb",
+        "SmallHouse.glb",
     );
 
     let i = 0;
     groundTask.onSuccess = function(task) {
-        //task.loadedMeshes[0].name = "ground";
+        let root = task.loadedMeshes[0];
+        root.scaling = new BABYLON.Vector3(2.5, 2.5, 2.5);
 
         task.loadedMeshes.forEach(element => {
-            element.scene = scene;
-            if (element.id.includes("Ground") ||
-                element.id.includes("Stepping stone") ||
-                element.id.includes("BridgeCollider")) {
+            element.visibility = 1;
+            // console.log(element.id)
+
+            if (element.id.includes("GroundColloder_primitive1") || element.id.includes("StairsCollider") ||
+                element.id.includes("FloorCollider")) {
                 element.checkCollisions = false;
-                element.showBoundingBox = true;
-                meshesGround.push(element);
+
             } else {
-                if ((element.id.includes("Tree") && element.id.includes("0")) ||
-                    element.id.includes("Street") && element.id.includes("0")) {
-                    element.checkCollisions = false;
-                    element.showBoundingBox = true;
+                if (element.id.includes("LanternsCollider") ||
+                    element.id.includes("UnderFloorCollider") ||
+                    element.id.includes("UnderStairCollider") ||
+                    element.id.includes("Roof") ||
+                    element.id.includes("TableCollider") ||
+                    element.id.includes("BoxCollider")
+                ) {
+                    let wall = new Wall(scene, element);
+                } else if (element.id.includes("Tree")) {
+                    let tree = new Tree(scene, element);
+                } else if (element.id.includes("River")) {
+                    let ground = new Ground(scene, element);
                 }
-                meshesEnvironment.push(element);
             }
+
 
         });
 
-        let ground = task.loadedMeshes[0];
-        // ground.position = this.position;
-        ground.scaling = new BABYLON.Vector3(2.5, 2.5, 2.5);
-        // ground.checkCollisions = true;
-        //ground.showBoundingBox = true;
-
-        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
-            ground,
-            BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 },
-            scene
-        );
-        scene.ground = new Ground(scene, new BABYLON.Vector3(0, -10, 0), new BABYLON.Vector3(1, 1, 1), meshesEnvironment, meshesGround);
     }
 }

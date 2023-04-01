@@ -1,15 +1,14 @@
-export class Ground {
+export class Tree {
     constructor(scene, mesh) {
         this.scene = scene;
         this.mesh = mesh;
         this.bounder = this.createBox();
-        this.mesh.actionManager = new BABYLON.ActionManager(this.scene);
         this.mesh.setParent(this.bounder);
-        this.handleCollisions();
     }
 
     createBox() {
         // create a box that will be used to bound the mesh
+
         let box = BABYLON.MeshBuilder.CreateBox("box", this.scene);
         let mat = new BABYLON.StandardMaterial("mat", this.scene);
         mat.alpha = 0.00;
@@ -26,35 +25,19 @@ export class Ground {
 
         let pos = this.mesh.getAbsolutePosition();
 
-        box.showBoundingBox = true;
+        // box.showBoundingBox = true;
+        box.checkCollisions = true;
 
         // Définit la nouvelle échelle en fonction de la taille de la boîte englobante
         box.scaling = new BABYLON.Vector3(
-            size.x,
+            size.x / 2,
             size.y,
-            size.z
+            size.z / 2
         );
 
         box.position = pos;
 
         return box;
-    }
-
-
-
-
-    handleCollisions() {
-
-        this.mesh.actionManager.registerAction(
-            new BABYLON.ExecuteCodeAction({
-                    trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
-                    parameter: this.bounder
-                },
-                (evt) => {
-                    console.log("collision");
-                }
-            )
-        );
 
     }
 }

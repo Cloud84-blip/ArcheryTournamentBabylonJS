@@ -83,14 +83,14 @@ export function createFollowCamera(scene, target, canvas) {
     camera.applyGravity = true;
 
     // default values
-    camera.radius = 40; // how far from the object to follow
-    camera.heightOffset = 14; // how high above the object to place the camera
+    camera.radius = 5; // how far from the object to follow
+    camera.heightOffset = 10; // how high above the object to place the camera
     camera.rotationOffset = 0; // the viewing angle
     camera.cameraAcceleration = 0.01; // how fast to move
-    camera.maxCameraSpeed = 1; // speed limit
+    camera.maxCameraSpeed = 2; // speed limit
 
     camera.lowerRadiusLimit = 10;
-    camera.upperRadiusLimit = 35;
+    camera.upperRadiusLimit = 15;
 
     // specific values
     switch (target.name) {
@@ -104,15 +104,17 @@ export function createFollowCamera(scene, target, canvas) {
 
 export function createArcCamera(scene, target, canvas) {
     var camera1 = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 4, 10, target.position, scene);
-    //target.position
+
+    //lock camera to target
+    camera1.lockedTarget = target;
     scene.activeCamera = camera1;
     scene.activeCamera.attachControl(canvas, true);
-    camera1.lowerRadiusLimit = 10;
+    camera1.lowerRadiusLimit = 20;
     camera1.upperRadiusLimit = 35;
     camera1.wheelDeltaPercentage = 0.01;
     camera1.checkCollisions = true;
 
-    camera1.setPosition(new BABYLON.Vector3(0, 21, 20));
+    camera1.setPosition(target.position.add(new BABYLON.Vector3(0, 10, 10)));
 
     return camera1;
 }
