@@ -42,6 +42,8 @@ export class Arrow {
 
         this.mesh.physicsImpostor.applyImpulse(aimForceVector, this.mesh.getAbsolutePosition());
 
+
+        // register action to check if arrow hit enemy
         if (!this.scene.enemy.length === 0) return;
         this.scene.enemy.forEach(enemy => {
             this.mesh.actionManager.registerAction(
@@ -60,6 +62,47 @@ export class Arrow {
                         this.archer.game.checkWave();
                     }));
         });
+    }
+
+    fireFromEnemy() {
+        if (!this.bounder) return;
+
+
+        let archer = scene.getMeshByName("archer").Archer;
+
+        let direction = archer.bounder.position.subtract(this.bounder.position);
+        let distance = direction.length(); // we take the vector that is not normalized, not the dir vector
+
+        // normalize the direction vector (convert to vector of length 1)
+        let dir = direction.normalize();
+
+        // angle between the direction vector and the z axis
+        let alpha = Math.atan2(-dir.x, -dir.z);
+
+        this.bounder.rotation.y = alpha;
+        this.bounder.position.y = getGroundHeightFromMesh(this.scene, this.bounder) + 3;
+
+        let powerOfFire = 80;
+        let azimuth = 0.1;
+        let aimForceVector = new BABYLON.Vector3(
+            direction.x * powerOfFire,
+            (direction.y + azimuth) * powerOfFire,
+            direction.z * powerOfFire
+        );
+
+        this.mesh.physicsImpostor.applyImpulse(aimForceVector, this.mesh.getAbsolutePosition());
+
+        // register action to check if arrow hit archer
+        this.mesh.actionManager.registerAction(
+            new BABYLON.ExecuteCodeAction({
+                    trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
+                    parameter: archer.bounder
+                },
+                (evt) => {
+                    console.log("hit archer");
+                    archer.health -= 35;
+                }));
+
     }
 
     update() {

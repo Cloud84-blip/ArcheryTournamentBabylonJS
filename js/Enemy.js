@@ -1,14 +1,19 @@
 import { getGroundHeightFromMesh } from './Utils.js';
 
 export class Enemy {
-    constructor(scene, mesh, speed = .1) {
+    constructor(scene, mesh, game, speed = .1) {
         this.scene = scene;
+        this.game = game;
         this.mesh = BABYLON.MeshBuilder.CreateBox("enemy", { height: 2, width: 1, depth: 1 }, this.scene);
         this.mesh.isVisible = false;
         this.canHitArcher = true;
         this.speed = speed;
         this.bounder = this.createBounder();
         this.mesh.setParent(this.bounder);
+        this.kills = 0;
+        this.canFire = true;
+        this.fireTimeout = 1000;
+        this.arrows = [];
     }
 
     destruct() {
@@ -19,15 +24,30 @@ export class Enemy {
     createBounder() {
         let bounder = BABYLON.MeshBuilder.CreateBox("bounder", { height: 2, width: 1, depth: 1 }, this.scene);
         bounder.name = "enemyBounder";
-        let ground = this.scene.getMeshByName("GroundColloder");
 
-        bounder.position = new BABYLON.Vector3(Math.random() * 100 - 50, ground.position.y, Math.random() * 60 - 30);
-        bounder.position.y = getGroundHeightFromMesh(this.scene, bounder) + 3;
-        bounder.position.y += 3;
+        if (this.game.map_name === "Map 1") {
+            let ground = this.scene.getMeshByName("GroundColloder");
+            bounder.position = new BABYLON.Vector3(Math.random() * 100 - 50, ground.position.y, Math.random() * 60 - 30);
+            bounder.position.y = getGroundHeightFromMesh(this.scene, bounder) + 3;
+            bounder.position.y += 3;
+        } else if (this.game.map_name === "Map 2") {
+            // here we need to load enemy in the tribune, they won't move
+            let tribune = this.scene.getMeshByName("Tribune_0");
+            // TO-DO check position of tribune in game... after resize...
+            // bounder.position = new BABYLON.Vector3(tribune.position.x, tribune.position.y, tribune.position.z);
+
+        } else if (this.game.map_name === "Map 3") {
+
+        }
+
+
 
         bounder.scaling = new BABYLON.Vector3(3, 3, 3);
         bounder.showBoundingBox = true;
         bounder.checkCollisions = true;
+
+
+
         return bounder;
     }
 
@@ -72,5 +92,17 @@ export class Enemy {
                 }, 2000);
             }
         }
+    }
+
+    fireArrow() {
+        if (!this.canFire) return;
+        this.canFire = false;
+
+        setTimeout(() => {
+            this.canFire = true;
+        }, this.fireTimeout);
+
+        this.arrows.push(new Arrow(this.scene, null, this));
+        this.arrows[this.arrows.length - 1].fire();
     }
 }

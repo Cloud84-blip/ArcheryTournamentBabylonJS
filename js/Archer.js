@@ -31,8 +31,8 @@ export class Archer {
         this.bounder = this.createBox();
         this.bounder.frontVector = new BABYLON.Vector3(0, 0, 1);
         this.bounder.lastGoodPosition = this.bounder.position;
-        this.targetForShoulderCamera = this.createShoulderTarget();
-        this.isSoulderCameraSet = false;
+        // this.targetForShoulderCamera = this.createShoulderTarget();
+        // this.isSoulderCameraSet = false;
 
         this.archerMesh.setParent(this.bounder);
         this.archerMesh.Archer = this;
@@ -121,9 +121,17 @@ export class Archer {
                 mesh.id.includes("Stepping stone") ||
                 mesh.id.includes("StairsCollider") ||
                 mesh.id.includes("FloorCollider") ||
-                mesh.id.includes("Road");
+                mesh.id.includes("Road") ||
+                mesh.id.includes("Water");
         });
         if (pickInfo.hit) {
+            // log the name of the mesh hit
+            if (pickInfo.pickedMesh.id.includes("Water")) {
+                this.health = 0;
+                this.updateUI();
+            }
+
+
             groundHeight = pickInfo.pickedPoint.y;
         }
         return groundHeight;

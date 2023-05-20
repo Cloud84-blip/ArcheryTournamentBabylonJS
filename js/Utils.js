@@ -136,12 +136,11 @@ export function createArcCamera(scene, target, canvas, name) {
     camera1.name = name;
     //scene.activeCamera = camera1;
     scene.activeCamera.attachControl(canvas, true);
-    camera1.lowerRadiusLimit = 15;
+    camera1.lowerRadiusLimit = 5;
     camera1.upperRadiusLimit = 30;
     camera1.wheelDeltaPercentage = 0.01;
-    //camera1.checkCollisions = true;
 
-    camera1.setPosition(target.position.clone().add(new BABYLON.Vector3(0, 10, 10)));
+    camera1.setPosition(target.position.clone().add(new BABYLON.Vector3(-2, 7, 10)));
 
     return camera1;
 }
