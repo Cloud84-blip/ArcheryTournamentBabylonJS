@@ -70,7 +70,7 @@ export function loadCrossHair(scene) {
     crossHair.parent = scene.activeCamera;
 
     crossHair.position.z += 10;
-    crossHair.position.y += .9;
+    crossHair.position.y += 2;
 
     crossHair.material = new BABYLON.StandardMaterial("crossHair", scene);
     crossHair.material.diffuseTexture = new BABYLON.Texture("assets/archer/gunaims.png", scene);

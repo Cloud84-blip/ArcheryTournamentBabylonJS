@@ -33,7 +33,7 @@ export class Arrow {
         // the arrow needs to be fired, so we need an impulse !
         // we apply it to the center of the sphere
         let powerOfFire = 80;
-        let azimuth = 0.1;
+        let azimuth = .2;
         let aimForceVector = new BABYLON.Vector3(
             direction.x * powerOfFire,
             (direction.y + azimuth) * powerOfFire,
@@ -65,13 +65,18 @@ export class Arrow {
     }
 
     fireFromEnemy() {
-        if (!this.bounder) return;
+        console.log("enemy shooting arrow")
 
+        let archer = this.scene.getMeshByName("archer").Archer;
 
-        let archer = scene.getMeshByName("archer").Archer;
-
-        let direction = archer.bounder.position.subtract(this.bounder.position);
+        let direction = archer.bounder.position.subtract(this.archer.bounder.position);
         let distance = direction.length(); // we take the vector that is not normalized, not the dir vector
+
+        console.log(distance)
+        let powerOfFire = 70
+        if (Math.floor(distance) < 90) {
+            powerOfFire = 60;
+        }
 
         // normalize the direction vector (convert to vector of length 1)
         let dir = direction.normalize();
@@ -79,11 +84,10 @@ export class Arrow {
         // angle between the direction vector and the z axis
         let alpha = Math.atan2(-dir.x, -dir.z);
 
-        this.bounder.rotation.y = alpha;
-        this.bounder.position.y = getGroundHeightFromMesh(this.scene, this.bounder) + 3;
+        this.archer.bounder.rotation.y = alpha;
 
-        let powerOfFire = 80;
-        let azimuth = 0.1;
+
+        let azimuth = 0.09;
         let aimForceVector = new BABYLON.Vector3(
             direction.x * powerOfFire,
             (direction.y + azimuth) * powerOfFire,
@@ -102,15 +106,12 @@ export class Arrow {
                     console.log("hit archer");
                     archer.health -= 35;
                 }));
-
     }
-
     update() {
         if (!this.isFired) return;
         if (getGroundHeightFromMesh(this.scene, this.mesh) >= this.mesh.position.y) {
             this.mesh.physicsImpostor.setLinearVelocity(BABYLON.Vector3.Zero());
             this.mesh.physicsImpostor.setMass(0);
-
             this.isFired = false;
         }
     }

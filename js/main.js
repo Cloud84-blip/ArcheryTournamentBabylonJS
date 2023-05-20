@@ -28,6 +28,7 @@ function Game() {
     this.wave = 0;
     this.wave_cleared = false;
     this.map_name = null;
+    this.map_id = null
 
     this.firstWave = function() {
         this.wave++;
@@ -91,13 +92,13 @@ function startGame() {
             }
 
             if (scene.enemy.length > 0) {
-                if (game.map_name === "Map 1") {
+                if (game.map_id === 1) {
                     scene.enemy.forEach(enemy => {
                         enemy.followArcher(scene);
                     });
-                } else if (game.map_name === "Map 2") {
+                } else if (game.map_id === 2) {
                     scene.enemy.forEach(enemy => {
-                        enemy.ShootArcher(scene);
+                        enemy.fireArrow();
                     });
                 }
             }
@@ -202,6 +203,7 @@ function createTestGround(scene) {
 
 function loadFirsMap(scene) {
     game.map_name = "Not a map designer"
+    game.map_id = 1
     let groundTask = scene.assetsManager.addMeshTask(
         "groundTask",
         "",
@@ -258,6 +260,7 @@ function loadFirsMap(scene) {
 
 function loadSecondMap(scene) {
     game.map_name = "Defnitly Not a map designer !!"
+    game.map_id = 2
     let groundTask = scene.assetsManager.addMeshTask(
         "groundTask",
         "",
@@ -274,10 +277,12 @@ function loadSecondMap(scene) {
             if (element.id.includes("ColloseumGround")) {
                 element.name = "ground";
                 scene.groundMeshes.push(element);
+            } else if (element.id.includes("Spawn")) {
+                element.name = "Spawn_" + i++;
             } else if (element.id.includes("Tribune")) {
-                element.name = "Tribune_" + i++;
-                scene.groundMeshes.push(element);
+                element.name = "ground_tribune_" + Math.floor(Math.random() * 3)
             }
+
         })
     }
 }
@@ -374,6 +379,7 @@ function showGameOver() {
 }
 
 function restartButton() {
+    let advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     let restartButton = BABYLON.GUI.Button.CreateSimpleButton("restart", "Restart");
     restartButton.width = "150px";
     restartButton.height = "40px";
@@ -520,14 +526,14 @@ function loadMenu(scene) {
 
 function loadRules() {
 
-    if (game.map_name === "Map 1") {
+    if (game.map_id === 1) {
         setTimeout(() => {
             showText("Don't let the enemies touch you, \nkill them all!");
         }, 2000);
         setTimeout(() => {
             showText("Use ZQSD to move, \nand the mouse to aim and shoot!");
         }, 4000)
-    } else if (game.map_name === "Map 2") {
+    } else if (game.map_id === 2) {
         setTimeout(() => {
             showText("Avoid projectiles, \n and kill them!");
         }, 2000);

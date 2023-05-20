@@ -1,4 +1,5 @@
 import { getGroundHeightFromMesh } from './Utils.js';
+import { Arrow } from './Arrow.js';
 
 export class Enemy {
     constructor(scene, mesh, game, speed = .1) {
@@ -25,19 +26,21 @@ export class Enemy {
         let bounder = BABYLON.MeshBuilder.CreateBox("bounder", { height: 2, width: 1, depth: 1 }, this.scene);
         bounder.name = "enemyBounder";
 
-        if (this.game.map_name === "Map 1") {
+        if (this.game.map_id === 1) {
             let ground = this.scene.getMeshByName("GroundColloder");
             bounder.position = new BABYLON.Vector3(Math.random() * 100 - 50, ground.position.y, Math.random() * 60 - 30);
             bounder.position.y = getGroundHeightFromMesh(this.scene, bounder) + 3;
             bounder.position.y += 3;
-        } else if (this.game.map_name === "Map 2") {
+        } else if (this.game.map_id === 2) {
             // here we need to load enemy in the tribune, they won't move
-            let tribune = this.scene.getMeshByName("Tribune_0");
-            // TO-DO check position of tribune in game... after resize...
-            // bounder.position = new BABYLON.Vector3(tribune.position.x, tribune.position.y, tribune.position.z);
+            let i = Math.floor(Math.random() * 22);
+            let spawn_spot = this.scene.getMeshByName("Spawn_" + i);
+            console.log(spawn_spot)
 
-        } else if (this.game.map_name === "Map 3") {
+            bounder.position = new BABYLON.Vector3(spawn_spot.position.x * 2.9, spawn_spot.position.y * 2.9, spawn_spot.position.z * 2.9);
 
+        } else if (this.game.map_id === 3) {
+            // Not implemented yet
         }
 
 
@@ -103,6 +106,6 @@ export class Enemy {
         }, this.fireTimeout);
 
         this.arrows.push(new Arrow(this.scene, null, this));
-        this.arrows[this.arrows.length - 1].fire();
+        this.arrows[this.arrows.length - 1].fireFromEnemy();
     }
 }
